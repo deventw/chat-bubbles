@@ -1,29 +1,39 @@
-import { useState, useCallback } from 'react'
+import { AnimatePresence } from 'framer-motion'
+import { useCallback, useState } from 'react'
 import './App.css'
-import Chat from './chat'
 import Bubble from './bubble'
 import BubbleInput from './bubble-input'
+import Chat from './chat'
 import useMessages from './use-messages'
-import { motion, AnimatePresence } from 'framer-motion'
 
 function App() {
   const [messages, addMessage] = useMessages([])
   const [newMessage, setNewMessage] = useState('')
 
-  const handleSubmit = useCallback(() => {
-    if (newMessage.length > 0) {
-      addMessage(newMessage)
-      setNewMessage('')
-    }
-  }, [newMessage, messages])
+  const handleSubmit = useCallback(
+    (bubbleHeight: number) => {
+      if (newMessage.length > 0) {
+        addMessage({
+          id: +new Date(),
+          text: newMessage,
+          height: bubbleHeight
+        })
+        setNewMessage('')
+      }
+    },
+    [newMessage, messages]
+  )
+
+  const lastMessage = messages[messages.length - 1]
+  const dy = lastMessage ? lastMessage.height : 0
 
   return (
     <div className="App">
       <Chat>
         <AnimatePresence>
           {messages.map(m => (
-            <Bubble key={m} id={m}>
-              {m}
+            <Bubble key={m.id} id={m.id} dy={dy}>
+              {m.text}
             </Bubble>
           ))}
         </AnimatePresence>
